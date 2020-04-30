@@ -1,6 +1,6 @@
-## FrontC en OCaml
+## FrontC in OCaml
 
-Kelun Chai, Djaber Solimani
+Kelun Chai
 
 #### Installation
 
@@ -9,23 +9,15 @@ make
 #### Test
 `./frontc [testfile]`
 
-#### Fonctions implémentées
+#### Implemented functions
 
-- Analyse lexicale (lexer.mll) ✓
-- Analyse syntaxique (parser.mly) ✓
-- Localisation des erreurs (main.ml) ✓
-- Typage(ast.ml) ✕
+- Lexical Analyze (lexer.mll) ✓
+- Syntax analysis (parser.mly) ✓
+- Error localization (main.ml) ✓
 
-| Fonction                 | Commentaire                                                  |
-| ------------------------ | ------------------------------------------------------------ |
-| Lexer                    | Faire ensemble                                               |
-| Parser                   | Faire ensemble (Résoudre les conflits `%nonassoc` et `%prec`) |
-| Localisation des erreurs | Kelun implémente la fonction de localisation des erreurs     |
-| Arbre de typage          | Kelun a essayé mais échoué                                   |
+#### Result
 
-#### Résultat
-
-| Test_bons                           | Résultat |
+| Test_correc                         | Resulta  |
 | ----------------------------------- | -------- |
 | testfile-binop14                    | ✓        |
 | testfile-binop17                    | ✓        |
@@ -38,7 +30,7 @@ make
 | testfile-identificateurs8           | ✓        |
 | `int main() { return 0; }` (test.c) | ✓        |
 
-| Test_mauvais            | Résultat | Message                                                      |
+| Test_bad                | Result   | Message                                                      |
 | ----------------------- | -------- | ------------------------------------------------------------ |
 | testfile-char7          | ✓        | `File "tests-lex-yacc/mauvais/testfile-char7.c", line 2, characters 0-1:<br/>lexical error: Caractère illégal:[']`<br />`'` ' (0-1) |
 | testfile-char8          | ✓        | `File "tests-lex-yacc/mauvais/testfile-char8.c", line 2, characters 0-1:<br/>lexical error: Caractère illégal:["]`<br />`"` " (0-1) |
@@ -59,20 +51,17 @@ make
 | testfile-structures1    | ✓        | `File "tests-lex-yacc/mauvais/testfile-structures1.c", line 2, characters 0-1:<br/>syntax error`<br /><br />` ` (0-1, expected a  `;`) |
 | testfile-structures2    | ✓        | `File "tests-lex-yacc/mauvais/testfile-structures2.c", line 2, characters 36-37:<br/>syntax error` |
 
-#### Problème et résolution
+#### Problems and solutions
 
 1. Parser ✓ 
 
-   Au début, nous avons rencontré 20 conflits shift/reduce. 
-
-   Nous avons constaté que le problème est sur la règle `expr operateur expr`. En utilisant `% prec`, nous avons résolu 19 conflits.
-
-   Il existe un conflit sur la règle `if (expr) inst else inst`.
-   On définit la priorité des `IF ELSE` comme `%nonassoc` et nous avons résolu le problème.
+   At the beginning, we encountered 20 shift/reduce conflicts. I found that the problem is on the `expr` rule. Using `% prec`, then I solved 19 conflicts.
+   There is a conflict on the `if (expr) inst else inst` rule.
+   I set the priority of `IF ELSE` as `% non-assoc` and we solved the problem.
 
 2. Lexer ✓ 
 
-   J'ai écrit une fonction `newline` qui localise le numéro de lignes, mais ce n'est pas très correct. 
+   I wrote a `newline' function that locates the line number, but it's not very correct. 
 
    ```ocaml
    let newline lexbuf =
@@ -83,11 +72,11 @@ make
              pos_cnum=0 }
    ```
 
-   Enfin, j'ai utilisé la fonction intégrée `Lexing.new_line lexbuf;` 
+   Finally, I used the built-in function `Lexing.new_line lexbuf;` 
 
-3. Localisation des erreurs ✓
+3. Error localization ✓
 
-   Afin de pouvoir localiser les erreurs, je définis la structure de données ident comme: `{id: string; id_loc: loc}`,où`type loc = {fr_start:Lexing.position; fr_end:Lexing.position}` et j'obtiens la position du caractère avec les deux fonction:
+   In order to be able to locate errors, I define the ident data structure as: `{id: string; id_loc: loc}`,où`type loc = {fr_start:Lexing.position; fr_end:Lexing.position}` and I get the position of the character with both functions:
 
    ```ocaml
    (* Gets the file range corresponding to the current parser "symbol". *)
@@ -102,12 +91,4 @@ make
    }
    ```
 
-   Mais après, en utilisant la fonction intégrée `Parsing.Parse_error`, je n'ai plus besoin ces fonctions.
-
-4. Typage ✕
-
-   J'ai essayé de définir une structure de données pour parser, `decl_struct` et `décl_fun` se sont bien déroulés, mais quand j'ai essayé de définir `decl_vars_init`, il y avait plusieurs niveaux de définition de type imbriqué. 
-
-   Pour définir `décl_vars_init`, je dois redéfinir `vars_init`; lorsque je définis `vars_init`, je rencontre le problèmes de définition de type pour ` (= init)?`.
-
-   Ces fichiers se trouvent dans le répertoire **<u>Error</u>**.
+   But then, using the built-in `Parsing.Parse_error` function, I don't need those functions anymore.
